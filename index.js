@@ -174,7 +174,7 @@ if(msg.text==="📱 Buy Number"){
 try{
 
 let res = await axios.get(
-"https://5sim.net/v1/user/buy/activation/any/Polymarket",
+"https://5sim.net/v1/user/buy/activation/USA/any/Polymarket",
 {
 headers:{
 Authorization:`Bearer ${getKey()}`,
