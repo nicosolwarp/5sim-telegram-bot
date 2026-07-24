@@ -204,8 +204,8 @@ bot.sendMessage(
     "⏳ Waiting SMS..."
 );
 
-
-}catch(err){
+}
+catch(err){
 
 console.log(
     "BUY ERROR:",
@@ -249,8 +249,8 @@ ${order.id}
 ⏳ Waiting SMS...`
 );
 
-
-}catch(err){
+}
+catch(err){
 
 console.log(
     "BUY ERROR:",
