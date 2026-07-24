@@ -1,3 +1,4 @@
+const http = require("http");
 require("dotenv").config();
 
 const TelegramBot = require("node-telegram-bot-api");
@@ -35,3 +36,11 @@ bot.onText(/\/ping/, (msg) => {
 });
 
 console.log("✅ Bot Started...");
+const PORT = process.env.PORT || 10000;
+
+http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("5SIM Telegram Bot is Running!");
+}).listen(PORT, () => {
+  console.log(`HTTP Server running on port ${PORT}`);
+});
