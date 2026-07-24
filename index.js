@@ -1,115 +1,128 @@
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
-const fs = require("fs");
 require("dotenv").config();
+const http = require("http");
 
 
-const bot = new TelegramBot(
-process.env.BOT_TOKEN,
-{polling:true}
-);
 
-
+const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_ID = String(process.env.ADMIN_ID);
 
-let keys = require("./keys.json");
+
+const API_KEYS = process.env.API_KEYS
+.split(",");
+
+
 let keyIndex = 0;
 
 
 function getKey(){
 
-let key = keys[keyIndex];
+    let key = API_KEYS[keyIndex];
 
-keyIndex++;
+    keyIndex++;
 
-if(keyIndex >= keys.length)
-keyIndex=0;
+    if(keyIndex >= API_KEYS.length){
+        keyIndex = 0;
+    }
 
-return key;
+    return key;
 
 }
 
 
 
-function saveOrders(data){
 
-fs.writeFileSync(
-"orders.json",
-JSON.stringify(data,null,2)
+const bot = new TelegramBot(
+    BOT_TOKEN,
+    {
+        polling:true
+    }
 );
 
-}
+
+
+let orders = [];
 
 
 
-function getOrders(){
+function isAdmin(msg){
 
-return JSON.parse(
-fs.readFileSync("orders.json")
-);
-
-}
-
-
-
-
-function auth(msg){
-
-return String(msg.from.id) === ADMIN_ID;
+    return String(msg.from.id) === ADMIN_ID;
 
 }
+
 
 
 
 // START
 
-bot.onText(/\/start/,msg=>{
-
-if(!auth(msg))
-return bot.sendMessage(msg.chat.id,"⛔ Access Denied");
+bot.onText(/\/start/, async(msg)=>{
 
 
-bot.sendMessage(
-msg.chat.id,
-"🔥 5SIM BOT READY",
-{
-reply_markup:{
-keyboard:[
-["💰 Balance"],
-["📱 Buy Number"],
-["📩 Check SMS"],
-["📜 Orders"],
-["❌ Cancel Order"]
-],
-resize_keyboard:true
-}
-}
-);
+    if(!isAdmin(msg)){
+        return bot.sendMessage(
+            msg.chat.id,
+            "⛔ Access Denied"
+        );
+    }
+
+
+
+    bot.sendMessage(
+        msg.chat.id,
+        "🔥 5SIM BOT ONLINE",
+        {
+            reply_markup:{
+                keyboard:[
+                    ["💰 Balance"],
+                    ["📱 Buy Number"],
+                    ["📩 Check SMS"],
+                    ["📜 Orders"],
+                    ["❌ Cancel Order"]
+                ],
+                resize_keyboard:true
+            }
+        }
+    );
+
 
 });
 
 
 
 
+
+// ALL BUTTON HANDLER
+
+bot.on("message", async(msg)=>{
+
+
+if(!msg.text) return;
+
+
+if(!isAdmin(msg)) return;
+
+
+
 // BALANCE
-
-bot.on("message",async msg=>{
-
-if(!auth(msg)) return;
-
 
 if(msg.text==="💰 Balance"){
 
+
 try{
 
-let res=await axios.get(
+
+let res = await axios.get(
 "https://5sim.net/v1/user/profile",
 {
 headers:{
-Authorization:`Bearer ${getKey()}`
+Authorization:
+`Bearer ${getKey()}`
 }
 }
 );
+
 
 
 bot.sendMessage(
@@ -118,7 +131,10 @@ msg.chat.id,
 );
 
 
-}catch(e){
+
+}catch(err){
+
+console.log(err.response?.data);
 
 bot.sendMessage(
 msg.chat.id,
@@ -127,18 +143,14 @@ msg.chat.id,
 
 }
 
-}
 
-});
+
+}
 
 
 
 
 // BUY NUMBER
-
-bot.on("message",async msg=>{
-
-if(!auth(msg)) return;
 
 
 if(msg.text==="📱 Buy Number"){
@@ -147,13 +159,14 @@ if(msg.text==="📱 Buy Number"){
 try{
 
 
-let res=await axios.get(
+let res = await axios.get(
 
 "https://5sim.net/v1/user/buy/activation/any/any/telegram",
 
 {
 headers:{
-Authorization:`Bearer ${getKey()}`
+Authorization:
+`Bearer ${getKey()}`
 }
 }
 
@@ -161,85 +174,95 @@ Authorization:`Bearer ${getKey()}`
 
 
 
-let orders=getOrders();
-
-
-orders.push({
+let order={
 
 id:res.data.id,
 number:res.data.phone,
 status:"WAITING"
 
-});
+};
 
 
-saveOrders(orders);
+
+orders.push(order);
 
 
 
 bot.sendMessage(
 msg.chat.id,
 
-`📱 Number Bought
+`
+📱 Number Purchased
 
-☎️ ${res.data.phone}
+☎️ Number:
+${order.number}
 
 🆔 Order ID:
-${res.data.id}
+${order.id}
 
-Waiting SMS...`
+⏳ Waiting SMS...
+`
 
 );
 
 
-}catch(e){
 
-console.log(e.response?.data);
+}catch(err){
+
+
+console.log(
+err.response?.data || err.message
+);
+
 
 bot.sendMessage(
 msg.chat.id,
-"❌ Purchase Failed"
+"❌ Buy Number Failed"
 );
 
-}
 
 }
 
-});
+
+}
+
 
 
 
 
 // CHECK SMS
 
-bot.on("message",async msg=>{
-
-if(!auth(msg)) return;
-
 
 if(msg.text==="📩 Check SMS"){
 
 
-let orders=getOrders();
+if(orders.length===0){
+
+return bot.sendMessage(
+msg.chat.id,
+"No active order"
+);
+
+}
 
 
-let order=orders[orders.length-1];
 
+let order =
+orders[orders.length-1];
 
-if(!order)
-return bot.sendMessage(msg.chat.id,"No order");
 
 
 try{
 
 
-let res=await axios.get(
+let res = await axios.get(
 
 `https://5sim.net/v1/user/check/${order.id}`,
 
 {
 headers:{
-Authorization:`Bearer ${getKey()}`
+Authorization:
+`Bearer ${getKey()}`
 }
 }
 
@@ -259,44 +282,54 @@ null,
 );
 
 
-}catch(e){
+
+}catch(err){
+
 
 bot.sendMessage(
 msg.chat.id,
-"SMS check error"
+"❌ SMS Check Failed"
 );
 
-}
-
 
 }
 
-});
+
+
+}
+
 
 
 
 
 // ORDERS
 
-bot.on("message",msg=>{
-
-
-if(!auth(msg)) return;
-
 
 if(msg.text==="📜 Orders"){
 
-let data=getOrders();
 
+if(orders.length===0){
 
-bot.sendMessage(
+return bot.sendMessage(
 msg.chat.id,
-JSON.stringify(data,null,2)
+"No Orders"
 );
 
 }
 
-});
+
+
+bot.sendMessage(
+msg.chat.id,
+JSON.stringify(
+orders,
+null,
+2
+)
+);
+
+
+}
 
 
 
@@ -304,18 +337,25 @@ JSON.stringify(data,null,2)
 
 // CANCEL
 
-bot.on("message",async msg=>{
-
-if(!auth(msg)) return;
-
 
 if(msg.text==="❌ Cancel Order"){
 
 
-let orders=getOrders();
+
+if(orders.length===0){
+
+return bot.sendMessage(
+msg.chat.id,
+"No Order"
+);
+
+}
 
 
-let order=orders[orders.length-1];
+
+let order =
+orders[orders.length-1];
+
 
 
 try{
@@ -327,11 +367,17 @@ await axios.get(
 
 {
 headers:{
-Authorization:`Bearer ${getKey()}`
+Authorization:
+`Bearer ${getKey()}`
 }
 }
 
 );
+
+
+
+order.status="CANCELLED";
+
 
 
 bot.sendMessage(
@@ -341,17 +387,22 @@ msg.chat.id,
 
 
 
-}catch(e){
+}catch(err){
+
 
 bot.sendMessage(
 msg.chat.id,
-"Cancel failed"
+"Cancel Failed"
 );
 
 
 }
 
+
+
 }
+
+
 
 });
 
@@ -359,14 +410,34 @@ msg.chat.id,
 
 
 
-require("http")
-.createServer((req,res)=>{
-res.end("5SIM BOT RUNNING");
-})
-.listen(
-process.env.PORT || 10000
+// HTTP SERVER FOR RENDER
+
+
+const PORT =
+process.env.PORT || 10000;
+
+
+
+http.createServer(
+(req,res)=>{
+
+res.writeHead(200);
+
+res.end(
+"5SIM Telegram Bot Running"
+);
+
+}
+
+).listen(
+PORT,
+()=>console.log(
+`Server running ${PORT}`
+)
 );
 
 
 
-console.log("BOT STARTED");
+console.log(
+"✅ BOT STARTED"
+);
