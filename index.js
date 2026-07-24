@@ -8,15 +8,19 @@ const http = require("http");
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_ID = String(process.env.ADMIN_ID);
 
-
-const API_KEYS = process.env.API_KEYS
-.split(",");
+const API_KEYS = (process.env.API_KEYS || "")
+.split(",")
+.filter(key => key.trim() !== "");
 
 
 let keyIndex = 0;
 
 
 function getKey(){
+
+    if(API_KEYS.length === 0){
+        throw new Error("API_KEYS missing");
+    }
 
     let key = API_KEYS[keyIndex];
 
@@ -27,6 +31,8 @@ function getKey(){
     }
 
     return key;
+
+}
 
 }
 
