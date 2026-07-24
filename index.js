@@ -4,23 +4,39 @@ require("dotenv").config();
 const http = require("http");
 
 
-
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_ID = String(process.env.ADMIN_ID);
+
 
 const API_KEYS = (process.env.API_KEYS || "")
 .split(",")
 .filter(key => key.trim() !== "");
 
 
+
+if(!BOT_TOKEN){
+    console.log("❌ BOT_TOKEN missing");
+    process.exit(1);
+}
+
+
+if(!ADMIN_ID){
+    console.log("❌ ADMIN_ID missing");
+    process.exit(1);
+}
+
+
+if(API_KEYS.length === 0){
+    console.log("❌ API_KEYS missing");
+    process.exit(1);
+}
+
+
+
 let keyIndex = 0;
 
 
 function getKey(){
-
-    if(API_KEYS.length === 0){
-        throw new Error("API_KEYS missing");
-    }
 
     let key = API_KEYS[keyIndex];
 
@@ -37,25 +53,11 @@ function getKey(){
 
 
 const bot = new TelegramBot(
-    if(!BOT_TOKEN){
-    console.log("❌ BOT_TOKEN missing");
-    process.exit(1);
-}
-
-if(!ADMIN_ID){
-    console.log("❌ ADMIN_ID missing");
-    process.exit(1);
-}
-
-if(API_KEYS.length === 0){
-    console.log("❌ API_KEYS missing");
-    process.exit(1);
-}
+    BOT_TOKEN,
     {
         polling:true
     }
 );
-
 
 
 let orders = [];
