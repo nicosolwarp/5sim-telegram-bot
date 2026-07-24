@@ -34,9 +34,6 @@ function getKey(){
 
 }
 
-}
-
-
 
 
 const bot = new TelegramBot(
