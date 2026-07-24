@@ -179,7 +179,15 @@ try{
 
 let res = await axios.get(
 
-"https://5sim.net/v1/user/buy/activation/any/any/telegram",
+    let res = await axios.get(
+"https://5sim.net/v1/user/buy/activation/any/telegram",
+{
+headers:{
+Authorization:`Bearer ${getKey()}`,
+Accept:"application/json"
+}
+}
+);
 
 {
 headers:{
@@ -225,21 +233,23 @@ ${order.id}
 
 
 
-}catch(err){
-
+catch(err){
 
 console.log(
+"BUY ERROR:",
+err.response?.status,
 err.response?.data || err.message
 );
 
-
 bot.sendMessage(
 msg.chat.id,
-"❌ Buy Number Failed"
+`❌ Buy Failed\n${JSON.stringify(err.response?.data || err.message)}`
 );
 
+    }
 
-}
+
+
 
 
 }
