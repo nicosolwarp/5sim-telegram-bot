@@ -37,7 +37,20 @@ function getKey(){
 
 
 const bot = new TelegramBot(
-    BOT_TOKEN,
+    if(!BOT_TOKEN){
+    console.log("❌ BOT_TOKEN missing");
+    process.exit(1);
+}
+
+if(!ADMIN_ID){
+    console.log("❌ ADMIN_ID missing");
+    process.exit(1);
+}
+
+if(API_KEYS.length === 0){
+    console.log("❌ API_KEYS missing");
+    process.exit(1);
+}
     {
         polling:true
     }
