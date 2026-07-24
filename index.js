@@ -167,7 +167,7 @@ msg.chat.id,
 
 
 
- // BUY NUMBER
+    // BUY NUMBER
 
 if(msg.text==="📱 Buy Number"){
 
@@ -204,6 +204,7 @@ bot.sendMessage(
     "⏳ Waiting SMS..."
 );
 
+
 }
 catch(err){
 
@@ -222,53 +223,6 @@ bot.sendMessage(
 }
 
 }
-
-
-let order = {
-
-    id: res.data.id,
-    number: res.data.phone,
-    status:"WAITING"
-
-};
-
-
-orders.push(order);
-
-
-bot.sendMessage(
-    msg.chat.id,
-    `📱 Number Purchased
-
-☎️ Number:
-${order.number}
-
-🆔 Order ID:
-${order.id}
-
-⏳ Waiting SMS...`
-);
-
-}
-catch(err){
-
-console.log(
-    "BUY ERROR:",
-    err.response?.status,
-    err.response?.data || err.message
-);
-
-
-bot.sendMessage(
-    msg.chat.id,
-    `❌ Buy Failed\n${JSON.stringify(err.response?.data || err.message)}`
-);
-
-}
-
-}
-
-
 
 
 
