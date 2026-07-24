@@ -199,8 +199,8 @@ orders.push(order);
 
 bot.sendMessage(
     msg.chat.id,
-`
-📱 Number Purchased
+
+'📱 Number Purchased
 
 ☎️ Number:
 ${order.number}
@@ -208,8 +208,8 @@ ${order.number}
 🆔 Order ID:
 ${order.id}
 
-⏳ Waiting SMS...
-`
+⏳ Waiting SMS...'
+
 );
 
 
