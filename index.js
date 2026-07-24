@@ -167,56 +167,38 @@ msg.chat.id,
 
 
 
-
+ Purchased
 // BUY NUMBER
-
 
 if(msg.text==="📱 Buy Number"){
 
-
 try{
 
-
 let res = await axios.get(
-
-    let res = await axios.get(
-"https://5sim.net/v1/user/buy/activation/any/telegram",
-{
-headers:{
-Authorization:`Bearer ${getKey()}`,
-Accept:"application/json"
-}
-}
-);
-
-{
-headers:{
-Authorization:
-`Bearer ${getKey()}`
-}
-}
-
+    "https://5sim.net/v1/user/buy/activation/any/telegram",
+    {
+        headers:{
+            Authorization:`Bearer ${getKey()}`,
+            Accept:"application/json"
+        }
+    }
 );
 
 
+let order = {
 
-let order={
-
-id:res.data.id,
-number:res.data.phone,
-status:"WAITING"
+    id: res.data.id,
+    number: res.data.phone,
+    status:"WAITING"
 
 };
-
 
 
 orders.push(order);
 
 
-
 bot.sendMessage(
-msg.chat.id,
-
+    msg.chat.id,
 `
 📱 Number Purchased
 
@@ -228,31 +210,29 @@ ${order.id}
 
 ⏳ Waiting SMS...
 `
-
 );
 
 
-
-catch(err){
+}catch(err){
 
 console.log(
-"BUY ERROR:",
-err.response?.status,
-err.response?.data || err.message
+    "BUY ERROR:",
+    err.response?.status,
+    err.response?.data || err.message
 );
+
 
 bot.sendMessage(
-msg.chat.id,
-`❌ Buy Failed\n${JSON.stringify(err.response?.data || err.message)}`
+    msg.chat.id,
+    `❌ Buy Failed\n${JSON.stringify(err.response?.data || err.message)}`
 );
 
-    }
-
-
-
-
+}
 
 }
+
+
+
 
 
 
