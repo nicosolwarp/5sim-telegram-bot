@@ -167,7 +167,15 @@ msg.chat.id,
 
 
 
- Purchased
+ bot.sendMessage(
+    msg.chat.id,
+    "📱 Number Purchased\n\n" +
+    "☎️ Number:\n" +
+    order.number + "\n\n" +
+    "🆔 Order ID:\n" +
+    order.id + "\n\n" +
+    "⏳ Waiting SMS..."
+);
 // BUY NUMBER
 
 if(msg.text==="📱 Buy Number"){
