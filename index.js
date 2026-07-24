@@ -167,16 +167,7 @@ msg.chat.id,
 
 
 
- bot.sendMessage(
-    msg.chat.id,
-    "📱 Number Purchased\n\n" +
-    "☎️ Number:\n" +
-    order.number + "\n\n" +
-    "🆔 Order ID:\n" +
-    order.id + "\n\n" +
-    "⏳ Waiting SMS..."
-);
-// BUY NUMBER
+ // BUY NUMBER
 
 if(msg.text==="📱 Buy Number"){
 
@@ -191,6 +182,46 @@ let res = await axios.get(
         }
     }
 );
+
+
+let order = {
+    id: res.data.id,
+    number: res.data.phone,
+    status:"WAITING"
+};
+
+
+orders.push(order);
+
+
+bot.sendMessage(
+    msg.chat.id,
+    "📱 Number Purchased\n\n" +
+    "☎️ Number:\n" +
+    order.number + "\n\n" +
+    "🆔 Order ID:\n" +
+    order.id + "\n\n" +
+    "⏳ Waiting SMS..."
+);
+
+
+}catch(err){
+
+console.log(
+    "BUY ERROR:",
+    err.response?.status,
+    err.response?.data || err.message
+);
+
+
+bot.sendMessage(
+    msg.chat.id,
+    "❌ Buy Failed"
+);
+
+}
+
+}
 
 
 let order = {
